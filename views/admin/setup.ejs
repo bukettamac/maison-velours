@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İlk Kurulum — Maison Velours</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-auth">
+  <div class="auth-card" style="max-width:420px;">
+    <div class="auth-step">İlk Kurulum</div>
+    <h1>Admin Hesabı Oluştur</h1>
+    <p class="auth-sub">Bu site için henüz bir yönetici hesabı yok. Kullanıcı adı ve şifrenizi belirleyin; ardından iki aşamalı doğrulamayı (2FA) kuracağız.</p>
+
+    <form id="setupForm" style="margin-top:26px;">
+      <label>Kullanıcı adı
+        <input type="text" name="username" autocomplete="username" required>
+      </label>
+      <label>Şifre (en az 8 karakter)
+        <input type="password" name="password" autocomplete="new-password" minlength="8" required>
+      </label>
+      <label>Şifre (tekrar)
+        <input type="password" name="passwordConfirm" autocomplete="new-password" minlength="8" required>
+      </label>
+      <button type="submit" class="btn-gold">Devam Et — QR Kodu Göster</button>
+      <p class="auth-error" id="errorMsg"></p>
+    </form>
+
+    <div id="qrStep" style="display:none; margin-top:10px;">
+      <p class="auth-sub">Aşağıdaki QR kodu Google Authenticator / Authy ile tarayın, sonra devam edin.</p>
+      <div style="background:#fff; padding:16px; border-radius:6px; text-align:center; margin:16px 0;">
+        <img id="qrImage" alt="2FA QR kodu" style="max-width:220px;">
+      </div>
+      <p style="font-size:0.78rem; color:var(--gold-light); word-break:break-all;">Elle giriş için anahtar: <span id="secretText"></span></p>
+      <a class="btn-gold" style="display:block; text-align:center; text-decoration:none; margin-top:14px;" href="/admin/setup/verify">Kodu Taradım, Devam Et</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('setupForm');
+    const errorMsg = document.getElementById('errorMsg');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch('/admin/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        errorMsg.textContent = json.error || 'Kurulum başarısız.';
+        return;
+      }
+      document.getElementById('qrImage').src = json.qrDataUrl;
+      document.getElementById('secretText').textContent = json.secret;
+      form.style.display = 'none';
+      document.getElementById('qrStep').style.display = 'block';
+    });
+  </script>
+</body>
+</html>

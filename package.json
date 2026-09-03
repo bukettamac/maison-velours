@@ -1,0 +1,30 @@
+{
+  "name": "maison-velours-nail-atelier",
+  "version": "1.0.0",
+  "description": "Veritabani destekli, iki asamali dogrulamali admin panele sahip luks nail atelier web sitesi",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --experimental-sqlite src/server.js",
+    "dev": "node --experimental-sqlite --watch src/server.js",
+    "seed": "node --experimental-sqlite scripts/seed.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.0.7",
+    "pg": "^8.12.0",
+    "otplib": "^12.0.1",
+    "qrcode": "^1.5.3"
+  }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doğrulama — Maison Velours</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-auth">
+  <div class="auth-card">
+    <div class="auth-step">Adım 2 / 2</div>
+    <h1>İki Aşamalı Doğrulama</h1>
+    <p class="auth-sub">Authenticator uygulamanızdaki 6 haneli kodu girin.</p>
+    <form id="verifyForm">
+      <label>Doğrulama kodu
+        <input type="text" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" required autofocus>
+      </label>
+      <button type="submit" class="btn-gold">Doğrula ve Giriş Yap</button>
+      <p class="auth-error" id="errorMsg"></p>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('verifyForm');
+    const errorMsg = document.getElementById('errorMsg');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch('/auth/verify-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        errorMsg.textContent = json.error || 'Doğrulama başarısız.';
+        return;
+      }
+      window.location.href = json.redirect || '/admin/dashboard';
+    });
+  </script>
+</body>
+</html>

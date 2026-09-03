@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yönetim Paneli — Maison Velours</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-logo">Maison <em>Velours</em></div>
+    <nav class="admin-nav">
+      <button class="tab-btn active" data-tab="services">Hizmetler</button>
+      <button class="tab-btn" data-tab="gallery">Galeri</button>
+      <button class="tab-btn" data-tab="reviews">Yorumlar</button>
+      <button class="tab-btn" data-tab="settings">Ayarlar</button>
+      <button class="tab-btn" data-tab="account">Hesabım</button>
+    </nav>
+    <a href="/" target="_blank" class="admin-view-site">Siteyi görüntüle ↗</a>
+    <form action="/auth/logout" method="POST" class="admin-logout-form">
+      <button type="submit" class="admin-logout">Çıkış Yap</button>
+    </form>
+    <div class="admin-user">Giriş: <strong><%= admin.username %></strong></div>
+  </aside>
+
+  <main class="admin-main">
+
+    <!-- HİZMETLER -->
+    <section class="tab-panel active" id="tab-services">
+      <div class="panel-head">
+        <h2>Hizmetler</h2>
+        <button class="btn-gold" onclick="openServiceForm()">+ Yeni Hizmet</button>
+      </div>
+      <table class="admin-table" id="servicesTable">
+        <thead><tr><th>Görsel</th><th>Ad</th><th>Süre</th><th>Eski Fiyat</th><th>Kampanya Fiyatı</th><th></th></tr></thead>
+        <tbody>
+          <% services.forEach(function(s){ %>
+          <tr data-id="<%= s.id %>">
+            <td><img class="thumb" src="<%= s.image %>" alt=""></td>
+            <td><%= s.name %></td>
+            <td><%= s.duration %></td>
+            <td><%= s.oldPrice || '—' %></td>
+            <td><%= s.newPrice %></td>
+            <td class="row-actions">
+              <button onclick='openServiceForm(<%- JSON.stringify(s) %>)'>Düzenle</button>
+              <button class="danger" onclick="deleteItem('services','<%= s.id %>')">Sil</button>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GALERİ -->
+    <section class="tab-panel" id="tab-gallery">
+      <div class="panel-head">
+        <h2>Galeri</h2>
+        <button class="btn-gold" onclick="openGalleryForm()">+ Yeni Görsel</button>
+      </div>
+      <table class="admin-table" id="galleryTable">
+        <thead><tr><th>Görsel</th><th>Açıklama</th><th>Satır</th><th></th></tr></thead>
+        <tbody>
+          <% gallery.forEach(function(g){ %>
+          <tr data-id="<%= g.id %>">
+            <td><img class="thumb" src="<%= g.imageUrl %>" alt=""></td>
+            <td><%= g.alt %></td>
+            <td><%= g.row === 'b' ? 'B (sağa akan)' : 'A (sola akan)' %></td>
+            <td class="row-actions">
+              <button onclick='openGalleryForm(<%- JSON.stringify(g) %>)'>Düzenle</button>
+              <button class="danger" onclick="deleteItem('gallery','<%= g.id %>')">Sil</button>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- YORUMLAR -->
+    <section class="tab-panel" id="tab-reviews">
+      <div class="panel-head">
+        <h2>Salon Yorumları</h2>
+        <button class="btn-gold" onclick="openReviewForm()">+ Yeni Yorum</button>
+      </div>
+      <table class="admin-table" id="reviewsTable">
+        <thead><tr><th>Ad</th><th>Puan</th><th>Yorum</th><th>Etiket</th><th></th></tr></thead>
+        <tbody>
+          <% reviews.forEach(function(r){ %>
+          <tr data-id="<%= r.id %>">
+            <td><%= r.name %></td>
+            <td><%= '★'.repeat(r.rating) %></td>
+            <td class="truncate"><%= r.text %></td>
+            <td><%= r.tag %></td>
+            <td class="row-actions">
+              <button onclick='openReviewForm(<%- JSON.stringify(r) %>)'>Düzenle</button>
+              <button class="danger" onclick="deleteItem('reviews','<%= r.id %>')">Sil</button>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- AYARLAR -->
+    <section class="tab-panel" id="tab-settings">
+      <div class="panel-head"><h2>İşletme Ayarları</h2></div>
+      <form id="settingsForm" class="settings-form">
+
+        <h4 class="form-group-title">Genel</h4>
+        <label>İşletme adı<input name="businessName" value="<%= settings.businessName %>"></label>
+        <label>Başlık (tagline)<input name="tagline" value="<%= settings.tagline %>"></label>
+        <label>Hero alt metni<textarea name="heroSubtext"><%= settings.heroSubtext %></textarea></label>
+        <label>Hero görsel URL (boş bırakılırsa ilk hizmet görseli kullanılır)<input name="heroImage" value="<%= settings.heroImage %>"></label>
+
+        <h4 class="form-group-title">Hakkımızda</h4>
+        <label>Başlık<input name="aboutTitle" value="<%= settings.aboutTitle %>"></label>
+        <label>1. paragraf<textarea name="aboutParagraph1"><%= settings.aboutParagraph1 %></textarea></label>
+        <label>2. paragraf<textarea name="aboutParagraph2"><%= settings.aboutParagraph2 %></textarea></label>
+        <label>Görsel URL (boş bırakılırsa 3. hizmet görseli kullanılır)<input name="aboutImage" value="<%= settings.aboutImage %>"></label>
+        <div class="stat-grid">
+          <label>1. rakam<input name="stat1Num" value="<%= settings.stat1Num %>"></label>
+          <label>1. etiket<input name="stat1Label" value="<%= settings.stat1Label %>"></label>
+          <label>2. rakam<input name="stat2Num" value="<%= settings.stat2Num %>"></label>
+          <label>2. etiket<input name="stat2Label" value="<%= settings.stat2Label %>"></label>
+          <label>3. rakam<input name="stat3Num" value="<%= settings.stat3Num %>"></label>
+          <label>3. etiket<input name="stat3Label" value="<%= settings.stat3Label %>"></label>
+        </div>
+
+        <h4 class="form-group-title">İletişim</h4>
+        <label>Adres<input name="address" value="<%= settings.address %>"></label>
+        <label>Telefon<input name="phone" value="<%= settings.phone %>"></label>
+        <label>WhatsApp (ülke kodu ile, örn: 905551234567)<input name="whatsapp" value="<%= settings.whatsapp %>"></label>
+        <label>E-posta<input name="email" value="<%= settings.email %>"></label>
+        <label>Instagram URL<input name="instagram" value="<%= settings.instagram %>"></label>
+        <label>TikTok URL<input name="tiktok" value="<%= settings.tiktok %>"></label>
+        <label>Facebook URL<input name="facebook" value="<%= settings.facebook %>"></label>
+        <label>Enlem (harita/schema için)<input name="latitude" value="<%= settings.latitude %>"></label>
+        <label>Boylam (harita/schema için)<input name="longitude" value="<%= settings.longitude %>"></label>
+
+        <h4 class="form-group-title">Çalışma Saatleri</h4>
+        <div id="hoursEditor" class="hours-editor"></div>
+        <button type="button" class="btn-ghost" id="addHourRow">+ Satır Ekle</button>
+
+        <h4 class="form-group-title">Footer</h4>
+        <label>Footer açıklaması<textarea name="footerTagline"><%= settings.footerTagline %></textarea></label>
+
+        <h4 class="form-group-title">SEO</h4>
+        <label>Meta açıklama<textarea name="metaDescription"><%= settings.metaDescription %></textarea></label>
+        <label>Meta anahtar kelimeler<input name="metaKeywords" value="<%= settings.metaKeywords %>"></label>
+
+        <button type="submit" class="btn-gold">Kaydet</button>
+        <p class="save-msg" id="settingsMsg"></p>
+      </form>
+    </section>
+
+    <!-- HESABIM -->
+    <section class="tab-panel" id="tab-account">
+      <div class="panel-head"><h2>Hesabım</h2></div>
+
+      <div class="account-box">
+        <h3>Şifre Değiştir</h3>
+        <form id="passwordForm" class="settings-form" style="max-width:420px; padding:0; background:none;">
+          <label>Mevcut şifre<input type="password" name="currentPassword" autocomplete="current-password" required></label>
+          <label>Yeni şifre (en az 8 karakter)<input type="password" name="newPassword" autocomplete="new-password" minlength="8" required></label>
+          <label>Yeni şifre (tekrar)<input type="password" name="newPasswordConfirm" autocomplete="new-password" minlength="8" required></label>
+          <button type="submit" class="btn-gold" style="align-self:flex-start;">Şifreyi Güncelle</button>
+          <p class="save-msg" id="passwordMsg"></p>
+        </form>
+      </div>
+
+      <div class="account-box">
+        <h3>İki Aşamalı Doğrulamayı (2FA) Yenile</h3>
+        <p style="font-size:0.88rem; color:#5a3242; max-width:480px; margin-bottom:14px;">
+          Telefonunuzu değiştirdiyseniz veya Authenticator uygulamasına erişiminizi kaybettiyseniz, mevcut şifrenizi girerek yeni bir 2FA anahtarı oluşturabilirsiniz.
+        </p>
+        <button class="btn-gold" id="start2faReset" type="button">2FA'yı Yenile</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modal form -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-card">
+    <h3 id="modalTitle">Form</h3>
+    <form id="modalForm"></form>
+  </div>
+</div>
+
+<!-- 2FA yenileme modali -->
+<div class="modal-backdrop" id="reset2faBackdrop">
+  <div class="modal-card">
+    <h3>2FA'yı Yenile</h3>
+    <div id="reset2faStep1">
+      <form id="reset2faPasswordForm">
+        <label>Mevcut şifre
+          <input type="password" name="currentPassword" autocomplete="current-password" required>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="cancel" id="reset2faCancel1">Vazgeç</button>
+          <button type="submit" class="save">Devam Et</button>
+        </div>
+        <p class="auth-error" id="reset2faError1"></p>
+      </form>
+    </div>
+    <div id="reset2faStep2" style="display:none;">
+      <p style="font-size:0.85rem; color:#5a3242; margin-bottom:10px;">Yeni QR kodu Authenticator uygulamanızla tarayın, sonra kodu girin.</p>
+      <div style="background:#fff; border:1px solid #eee; padding:14px; border-radius:6px; text-align:center;">
+        <img id="reset2faQr" alt="Yeni 2FA QR kodu" style="max-width:200px;">
+      </div>
+      <form id="reset2faCodeForm" style="margin-top:14px;">
+        <label>Doğrulama kodu
+          <input type="text" name="code" inputmode="numeric" maxlength="6" required autofocus>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="cancel" id="reset2faCancel2">Vazgeç</button>
+          <button type="submit" class="save">Etkinleştir</button>
+        </div>
+        <p class="auth-error" id="reset2faError2"></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.__INITIAL_HOURS__ = <%- JSON.stringify(settings.hours || []) %>;
+</script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

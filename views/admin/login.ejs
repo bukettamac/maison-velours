@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Girişi — Maison Velours</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-auth">
+  <div class="auth-card">
+    <div class="auth-step">Adım 1 / 2</div>
+    <h1>Yönetici Girişi</h1>
+    <p class="auth-sub">Kullanıcı adı ve şifrenizle devam edin.</p>
+    <form id="loginForm">
+      <label>Kullanıcı adı
+        <input type="text" name="username" autocomplete="username" required>
+      </label>
+      <label>Şifre
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button type="submit" class="btn-gold">Devam Et</button>
+      <p class="auth-error" id="errorMsg"></p>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      const data = Object.fromEntries(new FormData(form));
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        errorMsg.textContent = json.error || 'Giriş başarısız.';
+        return;
+      }
+      window.location.href = '/admin/verify';
+    });
+  </script>
+</body>
+</html>
